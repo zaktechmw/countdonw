@@ -409,7 +409,7 @@
             animationFrameId: null,
             lastTickTime: 0,
             isAutoLoop: false,
-            loopStage: 'presentation', // 'presentation' (3min), 'qa' (10min), 'break' (1min)
+            loopStage: 'presentation', // 'presentation' (3min), 'qa' (10min), 'break' (5min)
             isInBreak: false
         };
 
@@ -538,10 +538,10 @@
             } else if (timerState.loopStage === 'qa') {
                 // After 10 minutes, show break timer
                 timerState.loopStage = 'break';
-                timerState.remainingSeconds = 60; // 1 minute break
+                timerState.remainingSeconds = 300; // 5 minute break
                 timerState.isInBreak = true;
                 mode10Btn.classList.remove('active');
-                updateStatusBadge('Break - 1 Minute');
+                updateStatusBadge('Break - 5 Minutes');
                 timerState.lastTickTime = 0; // Reset timing
                 timeUpMessage.style.display = 'none';
                 updateTimerVisuals();
