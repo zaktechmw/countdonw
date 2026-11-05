@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+            max-width: 650px;
+            width: 90%;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-section img {
+            max-height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #0f172a;
+            margin-bottom: 40px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 35px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .timer-display {
+            font-size: 7rem;
+            font-weight: 700;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.1em;
+            margin-bottom: 40px;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .timer-display.green {
+            color: #10b981;
+        }
+
+        .timer-display.orange {
+            color: #f59e0b;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .timer-display.red {
+            color: #ef4444;
+            animation: pulse 0.6s ease-in-out infinite;
+        }
+
+        .timer-display.finished {
+            color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-10px);
+            }
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .time-up-message {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInBounce 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #475569;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 140px;
+        }
+
+        .mode-btn:hover {
+            border-color: #0f172a;
+            color: #0f172a;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);
+        }
+
+        .mode-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.4);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #0f172a;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #0f172a;
+            color: #0f172a;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .info-text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .shortcut-hint {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #0369a1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 15px;
+            letter-spacing: 0.3px;
+        }
+
+        .status-badge.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-badge.break {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-loop {
+            background: #f0f9ff;
+            color: #0369a1;
+            border: 2px solid #bfdbfe;
+            margin-top: 10px;
+        }
+
+        .btn-loop:hover:not(:disabled) {
+            background: #e0f2fe;
+            border-color: #0369a1;
+        }
+
+        .btn-loop.active {
+            background: #dbeafe;
+            border-color: #0369a1;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(3, 105, 161, 0.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 25px;
+                border-radius: 25px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 30px;
+            }
+
+            .timer-display {
+                font-size: 4.5rem;
+                margin-bottom: 30px;
+            }
+
+            .time-up-message {
+                font-size: 1.8rem;
+            }
+
+            .mode-selector {
+                margin-bottom: 30px;
+            }
+
+            .mode-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+
+            .controls {
+                gap: 12px;
+                margin-bottom: 15px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 25px;
+            }
+
+            .timer-display {
+                font-size: 3.5rem;
+                margin-bottom: 25px;
+            }
+
+            .time-up-message {
+                font-size: 1.5rem;
+            }
+
+            .mode-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 110px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <img src="https://www.sparcinnovations.africa/themes/sparcinnovations/assets/images/logo.png" alt="SPARC Innovation Space Logo">
+        </div>
+
+        <h1>Presentation Timer</h1>
+        <p class="subtitle">Build Bold Ideas. Scale Real Solutions.</p>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="3" id="mode-3">3 Minutes</button>
+            <button class="mode-btn" data-mode="10" id="mode-10">10 Minutes</button>
+        </div>
+
+        <div id="timer-display" class="timer-display green">03:00</div>
+        <div id="time-up-message" class="time-up-message" style="display: none;">TIME UP!</div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="start-btn">Start</button>
+            <button class="btn btn-primary" id="pause-btn" disabled>Pause</button>
+            <button class="btn btn-secondary" id="reset-btn">Reset</button>
+            <button class="btn btn-loop" id="loop-btn">🔄 Auto Loop</button>
+        </div>
+
+        <div id="status-badge" class="status-badge" style="display: none;"></div>
+
+        <div class="info-text">
+            <div class="shortcut-hint">💡 Press <strong>Spacebar</strong> to start/pause</div>
+        </div>
+    </div>
+
+    <script>
+        // Timer state
+        let timerState = {
+            totalSeconds: 3 * 60, // 3 minutes default
+            remainingSeconds: 3 * 60,
+            isRunning: false,
+            mode: 3, // 3 or 10 minutes
+            animationFrameId: null,
+            lastTickTime: 0,
+            isAutoLoop: false,
+            loopStage: 'presentation', // 'presentation' (3min), 'qa' (10min), 'break' (1min)
+            isInBreak: false
+        };
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer-display');
+        const timeUpMessage = document.getElementById('time-up-message');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const loopBtn = document.getElementById('loop-btn');
+        const statusBadge = document.getElementById('status-badge');
+        const mode3Btn = document.getElementById('mode-3');
+        const mode10Btn = document.getElementById('mode-10');
+
+        /**
+         * Format seconds into MM:SS string
+         */
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        /**
+         * Update the visual state of the timer display based on remaining time
+         */
+        function updateTimerVisuals() {
+            const displayText = formatTime(timerState.remainingSeconds);
+            timerDisplay.textContent = displayText;
+
+            if (timerState.remainingSeconds <= 0) {
+                timerDisplay.className = 'timer-display finished';
+                timeUpMessage.style.display = 'block';
+            } else if (timerState.remainingSeconds <= 30) {
+                timerDisplay.className = 'timer-display red';
+                timeUpMessage.style.display = 'none';
+            } else if (timerState.remainingSeconds <= 60) {
+                timerDisplay.className = 'timer-display orange';
+                timeUpMessage.style.display = 'none';
+            } else {
+                timerDisplay.className = 'timer-display green';
+                timeUpMessage.style.display = 'none';
+            }
+        }
+
+        /**
+         * Main timer loop using requestAnimationFrame for accurate timing
+         */
+        function timerLoop(currentTime) {
+            if (!timerState.isRunning) {
+                timerState.animationFrameId = requestAnimationFrame(timerLoop);
+                return;
+            }
+
+            // Initialize last tick time on first call
+            if (timerState.lastTickTime === 0) {
+                timerState.lastTickTime = currentTime;
+            }
+
+            // Calculate elapsed time since last tick
+            const elapsed = currentTime - timerState.lastTickTime;
+
+            // Update remaining seconds when 1000ms has passed (more accurate than every frame)
+            if (elapsed >= 1000) {
+                timerState.lastTickTime = currentTime;
+                timerState.remainingSeconds = Math.max(0, timerState.remainingSeconds - 1);
+                updateTimerVisuals();
+
+                // Stop timer when countdown reaches zero
+                if (timerState.remainingSeconds <= 0) {
+                    if (timerState.isAutoLoop) {
+                        // Advance to next stage but keep running
+                        advanceLoopStage();
+                        // Keep isRunning true so timer continues automatically
+                    } else {
+                        stopTimer();
+                        return; // Exit loop if not auto-looping
+                    }
+                }
+            }
+
+            timerState.animationFrameId = requestAnimationFrame(timerLoop);
+        }
+
+        /**
+         * Start the timer
+         */
+        function startTimer() {
+            if (timerState.isRunning) return;
+
+            timerState.isRunning = true;
+            timerState.lastTickTime = 0;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            mode3Btn.disabled = true;
+            mode10Btn.disabled = true;
+
+            // Begin the animation frame loop
+            timerState.animationFrameId = requestAnimationFrame(timerLoop);
+        }
+
+        /**
+         * Pause the timer
+         */
+        function pauseTimer() {
+            timerState.isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+        }
+
+        /**
+         * Advance to the next stage in the auto-loop
+         */
+        function advanceLoopStage() {
+            if (timerState.loopStage === 'presentation') {
+                // After 3 minutes, switch to 10 minutes and auto-start
+                timerState.loopStage = 'qa';
+                timerState.remainingSeconds = 10 * 60;
+                mode3Btn.classList.remove('active');
+                mode10Btn.classList.add('active');
+                updateStatusBadge('Q&A Session - 10 Minutes');
+                timerState.lastTickTime = 0; // Reset timing
+                timeUpMessage.style.display = 'none';
+                updateTimerVisuals();
+                
+            } else if (timerState.loopStage === 'qa') {
+                // After 10 minutes, show break timer
+                timerState.loopStage = 'break';
+                timerState.remainingSeconds = 60; // 1 minute break
+                timerState.isInBreak = true;
+                mode10Btn.classList.remove('active');
+                updateStatusBadge('Break - 1 Minute');
+                timerState.lastTickTime = 0; // Reset timing
+                timeUpMessage.style.display = 'none';
+                updateTimerVisuals();
+                
+            } else if (timerState.loopStage === 'break') {
+                // After break, return to 3 minutes and auto-start
+                timerState.loopStage = 'presentation';
+                timerState.remainingSeconds = 3 * 60; // 3 minutes
+                timerState.isInBreak = false;
+                mode3Btn.classList.add('active');
+                updateStatusBadge('Presentation - 3 Minutes');
+                timerState.lastTickTime = 0; // Reset timing
+                timeUpMessage.style.display = 'none';
+                updateTimerVisuals();
+            }
+        }
+
+        /**
+         * Update the status badge text and styling
+         */
+        function updateStatusBadge(text) {
+            statusBadge.textContent = text;
+            statusBadge.style.display = 'inline-block';
+            
+            if (timerState.isInBreak) {
+                statusBadge.className = 'status-badge break';
+            } else {
+                statusBadge.className = 'status-badge active';
+            }
+        }
+
+        /**
+         * Stop the timer (called when time runs out)
+         */
+        function stopTimer() {
+            timerState.isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            mode3Btn.disabled = false;
+            mode10Btn.disabled = false;
+            statusBadge.style.display = 'none';
+        }
+
+        /**
+         * Reset the timer to initial state
+         */
+        function resetTimer() {
+            timerState.isRunning = false;
+            timerState.isAutoLoop = false;
+            timerState.loopStage = 'presentation';
+            timerState.isInBreak = false;
+            timerState.remainingSeconds = 3 * 60;
+            timerState.lastTickTime = 0;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            mode3Btn.disabled = false;
+            mode10Btn.disabled = false;
+            mode3Btn.classList.add('active');
+            mode10Btn.classList.remove('active');
+            loopBtn.classList.remove('active');
+            statusBadge.style.display = 'none';
+            updateTimerVisuals();
+        }
+
+        /**
+         * Change timer mode (3 or 10 minutes)
+         */
+        function setMode(minutes) {
+            // Don't allow manual mode changes while timer is running in auto-loop
+            if (timerState.isRunning && timerState.isAutoLoop) return;
+            if (timerState.isRunning) return; // Don't change mode while running
+
+            timerState.mode = minutes;
+            timerState.totalSeconds = minutes * 60;
+            timerState.remainingSeconds = minutes * 60;
+            timerState.lastTickTime = 0;
+
+            // Update button states
+            if (minutes === 3) {
+                mode3Btn.classList.add('active');
+                mode10Btn.classList.remove('active');
+            } else {
+                mode3Btn.classList.remove('active');
+                mode10Btn.classList.add('active');
+            }
+
+            updateTimerVisuals();
+        }
+
+        /**
+         * Toggle auto-loop mode
+         */
+        function toggleAutoLoop() {
+            timerState.isAutoLoop = !timerState.isAutoLoop;
+
+            if (timerState.isAutoLoop) {
+                loopBtn.classList.add('active');
+                // Disable manual mode switching
+                mode3Btn.disabled = true;
+                mode10Btn.disabled = true;
+                updateStatusBadge('Presentation - 3 Minutes');
+            } else {
+                loopBtn.classList.remove('active');
+                // Re-enable manual mode switching if not running
+                if (!timerState.isRunning) {
+                    mode3Btn.disabled = false;
+                    mode10Btn.disabled = false;
+                }
+                statusBadge.style.display = 'none';
+            }
+        }
+
+        /**
+         * Handle spacebar press for start/pause toggle
+         */
+        function handleSpacebarPress(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+
+                if (timerState.isRunning) {
+                    pauseTimer();
+                } else if (timerState.remainingSeconds > 0) {
+                    startTimer();
+                }
+            }
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        loopBtn.addEventListener('click', toggleAutoLoop);
+        mode3Btn.addEventListener('click', () => setMode(3));
+        mode10Btn.addEventListener('click', () => setMode(10));
+        document.addEventListener('keydown', handleSpacebarPress);
+
+        // Initialize display
+        updateTimerVisuals();
+    </script>
+</body>
+</html>
